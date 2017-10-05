@@ -1,7 +1,43 @@
-// 'use strict';
+import Video from 'twilio-video';
+
+
+Template.videoChat.events({
+  "click #js-preview-camera": function(event, template){
+    event.preventDefault();
+    if( ! template.localMedia){
+      template.localTracks = Video.createLocalTracks().then(function(tracks) {
+        tracks.forEach(function(track) {
+          var thingy = document.getElementById("local-media")
+          thingy.appendChild(
+            track.attach()
+          );
+        })
+      }, function(error) {
+        console.error('Unable to access local media', error);
+        log('Unable to access Camera and Microphone');
+      });
+    }
+  }
+});
+
+// // Preview LocalParticipant's Tracks.
+// document.getElementById('button-preview').onclick = function() {
+//   var localTracksPromise = previewTracks
+//     ? Promise.resolve(previewTracks)
+//     : Video.createLocalTracks();
 //
-// var Video = require('twilio-video');
-//
+//   localTracksPromise.then(function(tracks) {
+//     var previewContainer = document.getElementById('local-media');
+//     if (!previewContainer.querySelector('video')) {
+//       attachTracks(tracks, previewContainer);
+//     }
+//   }, function(error) {
+//     console.error('Unable to access local media', error);
+//     log('Unable to access Camera and Microphone');
+//   });
+// };
+
+
 // var activeRoom;
 // var previewTracks;
 // var identity;
@@ -155,7 +191,7 @@
 //     log('Unable to access Camera and Microphone');
 //   });
 // };
-// 
+//
 // // Activity log.
 // function log(message) {
 //   var logDiv = document.getElementById('log');
