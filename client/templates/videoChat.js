@@ -4,11 +4,11 @@ import Video from 'twilio-video';
 Template.videoChat.events({
   "click #js-preview-camera": function(event, template){
     event.preventDefault();
-    if( ! template.localMedia){
-      template.localTracks = Video.createLocalTracks().then(function(tracks) {
+    var localMediaElement = document.getElementById("local-media");
+    if( ! localMediaElement.localMedia){
+      localMediaElement.localTracks = Video.createLocalTracks().then(function(tracks) {
         tracks.forEach(function(track) {
-          var thingy = document.getElementById("local-media")
-          thingy.appendChild(
+          localMediaElement.appendChild(
             track.attach()
           );
         })
