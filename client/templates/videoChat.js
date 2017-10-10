@@ -7,6 +7,21 @@ function attachTracks(tracks, container) {
   });
 }
 
+Template.videoChat.onCreated(function (){
+   this.previewVariable = new ReactiveVar(null);
+});
+
+Template.videoChat.onRendered(function (){
+   this.previewVariable.set(false);
+});
+
+Template.videoChat.helpers({
+  inPreviewMode: function () {
+    return (Template.instance().previewVariable.get())
+  }
+});
+
+
 Template.videoChat.events({
   "click #js-preview-camera": function(event, template){
     event.preventDefault();
@@ -14,6 +29,7 @@ Template.videoChat.events({
     if( ! localMediaElement.localTracks){
       localMediaElement.localTracks = Video.createLocalTracks().then(function(tracks) {
         attachTracks( tracks, localMediaElement );
+        template.previewVariable.set(true);
       }, function(error) {
         console.error('Unable to access local media', error);
         log('Unable to access Camera and Microphone');
