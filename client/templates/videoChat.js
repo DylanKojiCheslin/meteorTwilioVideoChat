@@ -1,17 +1,19 @@
 import Video from 'twilio-video';
 
+// Attach the Tracks to the DOM.
+function attachTracks(tracks, container) {
+  tracks.forEach(function(track) {
+    container.appendChild(track.attach());
+  });
+}
 
 Template.videoChat.events({
   "click #js-preview-camera": function(event, template){
     event.preventDefault();
     var localMediaElement = document.getElementById("local-media");
-    if( ! localMediaElement.localMedia){
+    if( ! localMediaElement.localTracks){
       localMediaElement.localTracks = Video.createLocalTracks().then(function(tracks) {
-        tracks.forEach(function(track) {
-          localMediaElement.appendChild(
-            track.attach()
-          );
-        })
+        attachTracks( tracks, localMediaElement );
       }, function(error) {
         console.error('Unable to access local media', error);
         log('Unable to access Camera and Microphone');
@@ -42,13 +44,6 @@ Template.videoChat.events({
 // var previewTracks;
 // var identity;
 // var roomName;
-//
-// // Attach the Tracks to the DOM.
-// function attachTracks(tracks, container) {
-//   tracks.forEach(function(track) {
-//     container.appendChild(track.attach());
-//   });
-// }
 //
 // // Attach the Participant's Tracks to the DOM.
 // function attachParticipantTracks(participant, container) {
