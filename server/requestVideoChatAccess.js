@@ -1,5 +1,3 @@
-/*requestVideoChatAccess*/
-
 import { AccessToken } from 'twilio.jwt.AccessToken';
 const VideoGrant = AccessToken.VideoGrant;
 
