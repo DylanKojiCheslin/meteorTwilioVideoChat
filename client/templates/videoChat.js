@@ -7,11 +7,18 @@ function attachTracks(tracks, container) {
   });
 }
 
-// Attach the Tracks to the DOM.
 function muteTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.disable();
+    }
+  });
+}
+
+function unmuteTracks(tracks) {
+  tracks.forEach(function(track) {
+    if (track.kind == "audio") {
+      track.enable();
     }
   });
 }
@@ -57,8 +64,18 @@ Template.videoChat.events({
     if( template.localTracks){
       muteTracks(template.localTracks);
       template.localMuted.set(true);
+      console.log(template);
     }
-  }
+  },
+  "click #js-unmute-local-media": function(event, template){
+    event.preventDefault();
+    var localMediaElement = document.getElementById("local-media");
+    if( template.localTracks){
+      unmuteTracks(template.localTracks);
+      template.localMuted.set(false);
+      console.log(template);
+    }
+  },
 });
 
 // // Preview LocalParticipant's Tracks.

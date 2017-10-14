@@ -8,5 +8,8 @@
     {{#unless localMediaMuted}}
       <button id="js-mute-local-media">mute</button>
     {{/unless}}
+    {{#if localMediaMuted}}
+      <button id="js-unmute-local-media">unmute</button>
+    {{/if}}
   {{/if}}
 </template>
