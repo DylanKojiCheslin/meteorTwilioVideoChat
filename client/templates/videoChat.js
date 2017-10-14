@@ -7,17 +7,31 @@ function attachTracks(tracks, container) {
   });
 }
 
+// Attach the Tracks to the DOM.
+function muteTracks(tracks) {
+  tracks.forEach(function(track) {
+    if (track.kind == "audio") {
+      track.disable();
+    }
+  });
+}
+
 Template.videoChat.onCreated(function (){
    this.previewVariable = new ReactiveVar(null);
+   this.localMuted = new ReactiveVar(null);
 });
 
 Template.videoChat.onRendered(function (){
    this.previewVariable.set(false);
+   this.localMuted.set(false);
 });
 
 Template.videoChat.helpers({
   inPreviewMode: function () {
     return (Template.instance().previewVariable.get())
+  },
+  localMediaMuted: function () {
+    return (Template.instance().localMuted.get())
   }
 });
 
@@ -26,14 +40,23 @@ Template.videoChat.events({
   "click #js-preview-camera": function(event, template){
     event.preventDefault();
     var localMediaElement = document.getElementById("local-media");
-    if( ! localMediaElement.localTracks){
-      localMediaElement.localTracks = Video.createLocalTracks().then(function(tracks) {
+    if( ! template.localTracks){
+      Video.createLocalTracks().then(function(tracks) {
+        template.localTracks = tracks;
         attachTracks( tracks, localMediaElement );
         template.previewVariable.set(true);
       }, function(error) {
         console.error('Unable to access local media', error);
         log('Unable to access Camera and Microphone');
       });
+    }
+  },
+  "click #js-mute-local-media": function(event, template){
+    event.preventDefault();
+    var localMediaElement = document.getElementById("local-media");
+    if( template.localTracks){
+      muteTracks(template.localTracks);
+      template.localMuted.set(true);
     }
   }
 });

@@ -4,4 +4,9 @@
   {{#unless inPreviewMode}}
     <button id="js-preview-camera">preview</button>
   {{/unless}}
+  {{#if inPreviewMode}}
+    {{#unless localMediaMuted}}
+      <button id="js-mute-local-media">mute</button>
+    {{/unless}}
+  {{/if}}
 </template>
