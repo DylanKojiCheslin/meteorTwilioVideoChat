@@ -1,9 +1,8 @@
 import Video from 'twilio-video';
 
-// Attach the Tracks to the DOM.
-function attachTracks(tracks, container) {
+function attachTracksToDomElement(tracks, domElement) {
   tracks.forEach(function(track) {
-    container.appendChild(track.attach());
+    domElement.appendChild(track.attach());
   });
 }
 
@@ -50,7 +49,7 @@ Template.videoChat.events({
     if( ! template.localTracks){
       Video.createLocalTracks().then(function(tracks) {
         template.localTracks = tracks;
-        attachTracks( tracks, localMediaElement );
+        attachTracksToDomElement( tracks, localMediaElement );
         template.previewVariable.set(true);
       }, function(error) {
         console.error('Unable to access local media', error);
