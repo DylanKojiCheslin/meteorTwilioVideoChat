@@ -4,13 +4,12 @@ const VideoGrant = AccessToken.VideoGrant;
 Meteor.methods({
   requestVideoChatAccess:function(roomName){
     check(roomName, String);
-    const randomIdentifier = Random.id();
     const token = new AccessToken(
     Meteor.settings.private.twilio.accountSid,
     Meteor.settings.private.twilio.apiKey,
     Meteor.settings.private.twilio.apiKeySecret
     );
-    token.identity = randomIdentifier;
+    token.identity = Random.id();
     const grant = new VideoGrant();
     token.addGrant(grant);
     const response = {
