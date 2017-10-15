@@ -1,6 +1,9 @@
 <template name="videoChat">
   <div id="local-media"></div>
   <div id="remote-media"></div>
+  <form id="js-join-video-chat-room">
+    <input type="text" name="text" placeholder="Enter a room name" />
+  </form>
   {{#unless inPreviewMode}}
     <button id="js-preview-camera">preview</button>
   {{/unless}}
