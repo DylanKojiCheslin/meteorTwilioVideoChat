@@ -31,6 +31,8 @@ function roomJoined(room, template){
   if (! template.localTracks) {
     const localMediaElement = document.getElementById("local-media");
     attachParticipantTracks(room.localParticipant, localMediaElement);
+    template.localTracks = room.localParticipant.tracks;
+    template.localMediaAttached.set(true);
   }
 }
 
@@ -50,7 +52,7 @@ function createLocalTracks(template) {
 }
 
 Template.videoChat.onCreated(function (){
-   this.previewVariable = new ReactiveVar(null);
+   this.localMediaAttached = new ReactiveVar(null);
    this.localMuted = new ReactiveVar(null);
    const self = this;
    Meteor.call(
@@ -66,13 +68,13 @@ Template.videoChat.onCreated(function (){
 });
 
 Template.videoChat.onRendered(function (){
-   this.previewVariable.set(false);
+   this.localMediaAttached.set(false);
    this.localMuted.set(false);
 });
 
 Template.videoChat.helpers({
   inPreviewMode: function () {
-    return (Template.instance().previewVariable.get())
+    return (Template.instance().localMediaAttached.get())
   },
   localMediaMuted: function () {
     return (Template.instance().localMuted.get())
@@ -85,7 +87,7 @@ Template.videoChat.events({
     if( ! template.localTracks){
       createLocalTracks(template).then(
         function(value){
-        template.previewVariable.set(true);
+        template.localMediaAttached.set(true);
       },
         function(error){
           console.error(error);
@@ -112,11 +114,11 @@ Template.videoChat.events({
   "submit #js-join-video-chat-room": function(event, template){
     event.preventDefault();
     let theLocalTracks;
-    template.previewVariable.set(true);
+    template.localMediaAttached.set(true);
     const roomName = event.target.text.value;
     let connectOptions = {
       name: roomName,
-      logLevel: 'debug'
+      logLevel: 'warn'
     }
     if ( template.localTracks ) {
       connectOptions.tracks = template.localTracks;
