@@ -8,7 +8,7 @@ function attachTracksToDomElement(tracks, domElement) {
 
 function attachParticipantTracks(participant, domElement) {
   var tracks = Array.from(participant.tracks.values());
-  attachTracks(tracks, domElement);
+  attachTracksToDomElement(tracks, domElement);
 }
 
 function muteTracks(tracks) {
@@ -27,9 +27,11 @@ function unmuteTracks(tracks) {
   });
 }
 
-function roomJoined(room){
-  console.log('roomJoined');
-  console.log(room);
+function roomJoined(room, template){
+  if (! template.localTracks) {
+    const localMediaElement = document.getElementById("local-media");
+    attachParticipantTracks(room.localParticipant, localMediaElement);
+  }
 }
 
 function createLocalTracks(template) {
@@ -120,7 +122,9 @@ Template.videoChat.events({
       connectOptions.tracks = template.localTracks;
     }
     Video.connect(template.accessData.token, connectOptions)
-    .then(roomJoined, function(error) {
+    .then(
+      function(room){roomJoined(room,template)}
+      , function(error) {
       console.error('Could not connect to Twilio: ' + error.message);
     });
   }
