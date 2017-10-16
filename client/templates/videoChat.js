@@ -11,7 +11,7 @@ function attachParticipantTracks(participant, domElement) {
   attachTracksToDomElement(tracks, domElement);
 }
 
-function muteTracks(tracks) {
+function disableLocalAudoTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.disable();
@@ -19,7 +19,7 @@ function muteTracks(tracks) {
   });
 }
 
-function unmuteTracks(tracks) {
+function enableLocalAudoTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.enable();
@@ -55,7 +55,7 @@ function createLocalTracks(template) {
 
 Template.videoChat.onCreated(function (){
    this.localMediaAttached = new ReactiveVar(null);
-   this.localMuted = new ReactiveVar(null);
+   this.localAudioEnabled = new ReactiveVar(null);
    const self = this;
    Meteor.call(
      "requestVideoChatAccess", function(error, result){
@@ -71,15 +71,15 @@ Template.videoChat.onCreated(function (){
 
 Template.videoChat.onRendered(function (){
    this.localMediaAttached.set(false);
-   this.localMuted.set(false);
+   this.localAudioEnabled.set(true);
 });
 
 Template.videoChat.helpers({
   inPreviewMode: function () {
     return (Template.instance().localMediaAttached.get())
   },
-  localMediaMuted: function () {
-    return (Template.instance().localMuted.get())
+  localMediaAudioEnabled: function () {
+    return (Template.instance().localAudioEnabled.get())
   }
 });
 
@@ -101,16 +101,16 @@ Template.videoChat.events({
     event.preventDefault();
     var localMediaElement = document.getElementById("local-media");
     if( template.localTracks){
-      muteTracks(template.localTracks);
-      template.localMuted.set(true);
+      disableLocalAudoTracks(template.localTracks);
+      template.localAudioEnabled.set(false);
     }
   },
   "click #js-unmute-local-media": function(event, template){
     event.preventDefault();
     var localMediaElement = document.getElementById("local-media");
     if( template.localTracks){
-      unmuteTracks(template.localTracks);
-      template.localMuted.set(false);
+      enableLocalAudoTracks(template.localTracks);
+      template.localAudioEnabled.set(true);
     }
   },
   "submit #js-join-video-chat-room": function(event, template){

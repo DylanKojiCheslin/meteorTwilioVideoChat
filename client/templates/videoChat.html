@@ -8,11 +8,11 @@
     <button id="js-preview-camera">preview</button>
   {{/unless}}
   {{#if inPreviewMode}}
-    {{#unless localMediaMuted}}
+    {{#if localMediaAudioEnabled}}
       <button id="js-mute-local-media">mute</button>
-    {{/unless}}
-    {{#if localMediaMuted}}
-      <button id="js-unmute-local-media">unmute</button>
     {{/if}}
+    {{#unless localMediaAudioEnabled}}
+      <button id="js-unmute-local-media">unmute</button>
+    {{/unless}}
   {{/if}}
 </template>
