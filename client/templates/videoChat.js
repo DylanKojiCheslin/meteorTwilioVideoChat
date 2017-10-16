@@ -87,8 +87,8 @@ Template.videoChat.events({
     if( ! template.localTracks){
       createLocalTracks(template).then(
         function(value){
-        template.localMediaAttached.set(true);
-      },
+          template.localMediaAttached.set(true);
+        },
         function(error){
           console.error(error);
         }
@@ -125,9 +125,12 @@ Template.videoChat.events({
     }
     Video.connect(template.accessData.token, connectOptions)
     .then(
-      function(room){roomJoined(room,template)}
-      , function(error) {
-      console.error('Could not connect to Twilio: ' + error.message);
-    });
+      function(room){
+        roomJoined(room,template)
+      },
+      function(error) {
+        console.error('Could not connect to Twilio: ' + error.message);
+      }
+    );
   }
 });
