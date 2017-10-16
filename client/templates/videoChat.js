@@ -44,10 +44,12 @@ function createLocalTracks(template) {
         template.localTracks = tracks;
         attachTracksToDomElement( tracks, localMediaElement );
         resolve(tracks);
-    }, function(error) {
-      console.error('Unable to access local media', error);
-      reject('Unable to access Camera and Microphone');
-    });
+      },
+      function(error) {
+        console.error('Unable to access local media', error);
+        reject('Unable to access Camera and Microphone');
+      }
+    );
   });
 }
 
