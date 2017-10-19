@@ -1,6 +1,4 @@
 <template name="videoChat">
-  <div id="local-media"></div>
-  <div id="remote-media"></div>
   <form id="js-join-video-chat-room">
     <input type="text" name="text" placeholder="Enter a room name" />
   </form>
@@ -8,11 +6,20 @@
     <button id="js-preview-camera">preview</button>
   {{/unless}}
   {{#if inPreviewMode}}
+  EndPriview
+  {{/if}}
     {{#if localMediaAudioEnabled}}
       <button id="js-mute-local-media">mute</button>
     {{/if}}
     {{#unless localMediaAudioEnabled}}
       <button id="js-unmute-local-media">unmute</button>
     {{/unless}}
-  {{/if}}
+    {{#if localMediaVideoEnabled}}
+      <button id="js-disable-video-local-media">disable camera</button>
+    {{/if}}
+    {{#unless localMediaVideoEnabled}}
+      <button id="js-enable-video-local-media">enable camera</button>
+    {{/unless}}
+  <div id="local-media"></div>
+  <div id="remote-media"></div>
 </template>

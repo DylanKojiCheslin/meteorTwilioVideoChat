@@ -11,7 +11,7 @@ function attachParticipantTracks(participant, domElement) {
   attachTracksToDomElement(tracks, domElement);
 }
 
-function disableLocalAudoTracks(tracks) {
+function disableLocalAudioTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.disable();
@@ -19,7 +19,7 @@ function disableLocalAudoTracks(tracks) {
   });
 }
 
-function enableLocalAudoTracks(tracks) {
+function enableLocalAudioTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.enable();
@@ -27,12 +27,29 @@ function enableLocalAudoTracks(tracks) {
   });
 }
 
+function disableLocalVideoTracks(tracks) {
+  tracks.forEach(function(track) {
+    if (track.kind == "video") {
+      track.disable();
+    }
+  });
+}
+
+function enableLocalVideoTracks(tracks) {
+  tracks.forEach(function(track) {
+    if (track.kind == "video") {
+      track.enable();
+    }
+  });
+}
+
+
 function roomJoined(room, template){
   if (! template.localTracks) {
     const localMediaElement = document.getElementById("local-media");
     attachParticipantTracks(room.localParticipant, localMediaElement);
     template.localTracks = room.localParticipant.tracks;
-    template.localMediaAttached.set(true);
+    template.previewMediaAttached.set(true);
   }
 }
 
@@ -54,8 +71,9 @@ function createLocalTracks(template) {
 }
 
 Template.videoChat.onCreated(function (){
-   this.localMediaAttached = new ReactiveVar(null);
+   this.previewMediaAttached = new ReactiveVar(null);
    this.localAudioEnabled = new ReactiveVar(null);
+   this.localVideoEnabled = new ReactiveVar(null);
    const self = this;
    Meteor.call(
      "requestVideoChatAccess", function(error, result){
@@ -70,17 +88,21 @@ Template.videoChat.onCreated(function (){
 });
 
 Template.videoChat.onRendered(function (){
-   this.localMediaAttached.set(false);
+   this.previewMediaAttached.set(false);
    this.localAudioEnabled.set(true);
+   this.localVideoEnabled.set(true);
 });
 
 Template.videoChat.helpers({
-  inPreviewMode: function () {
-    return (Template.instance().localMediaAttached.get())
+  previewMediaAttachedMode: function () {
+    return (Template.instance().previewMediaAttached.get())
   },
   localMediaAudioEnabled: function () {
     return (Template.instance().localAudioEnabled.get())
-  }
+  },
+  localMediaVideoEnabled: function () {
+    return (Template.instance().localVideoEnabled.get())
+  },
 });
 
 Template.videoChat.events({
@@ -89,7 +111,7 @@ Template.videoChat.events({
     if( ! template.localTracks){
       createLocalTracks(template).then(
         function(value){
-          template.localMediaAttached.set(true);
+          template.previewMediaAttached.set(true);
         },
         function(error){
           console.error(error);
@@ -99,24 +121,40 @@ Template.videoChat.events({
   },
   "click #js-mute-local-media": function(event, template){
     event.preventDefault();
-    var localMediaElement = document.getElementById("local-media");
     if( template.localTracks){
-      disableLocalAudoTracks(template.localTracks);
+      const localMediaElement = document.getElementById("local-media");
+      disableLocalAudioTracks(template.localTracks);
       template.localAudioEnabled.set(false);
     }
   },
   "click #js-unmute-local-media": function(event, template){
     event.preventDefault();
-    var localMediaElement = document.getElementById("local-media");
     if( template.localTracks){
-      enableLocalAudoTracks(template.localTracks);
+      const localMediaElement = document.getElementById("local-media");
+      enableLocalAudioTracks(template.localTracks);
       template.localAudioEnabled.set(true);
+    }
+  },
+  "click #js-disable-video-local-media": function(event, template){
+    event.preventDefault();
+    const localMediaElement = document.getElementById("local-media");
+    if (template.localTracks) {
+      disableLocalVideoTracks(template.localTracks);
+      template.localVideoEnabled.set(false);
+    }
+  },
+  "click #js-enable-video-local-media": function(event, template){
+    event.preventDefault();
+    const localMediaElement = document.getElementById("local-media");
+    if (template.localTracks) {
+      enableLocalVideoTracks(template.localTracks);
+      template.localVideoEnabled.set(true);
     }
   },
   "submit #js-join-video-chat-room": function(event, template){
     event.preventDefault();
     let theLocalTracks;
-    template.localMediaAttached.set(true);
+    template.previewMediaAttached.set(true);
     const roomName = event.target.text.value;
     let connectOptions = {
       name: roomName,
