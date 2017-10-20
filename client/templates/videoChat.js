@@ -11,7 +11,7 @@ function attachParticipantTracks(participant, domElement) {
   attachTracksToDomElement(tracks, domElement);
 }
 
-function disableLocalAudioTracks(tracks) {
+function disableAudioTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.disable();
@@ -19,7 +19,7 @@ function disableLocalAudioTracks(tracks) {
   });
 }
 
-function enableLocalAudioTracks(tracks) {
+function enableAudioTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
       track.enable();
@@ -27,7 +27,7 @@ function enableLocalAudioTracks(tracks) {
   });
 }
 
-function disableLocalVideoTracks(tracks) {
+function disableVideoTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "video") {
       track.disable();
@@ -35,14 +35,13 @@ function disableLocalVideoTracks(tracks) {
   });
 }
 
-function enableLocalVideoTracks(tracks) {
+function enableVideoTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "video") {
       track.enable();
     }
   });
 }
-
 
 function roomJoined(room, template){
   if (! template.localTracks) {
@@ -129,7 +128,7 @@ Template.videoChat.events({
     event.preventDefault();
     if( template.localTracks){
       const localMediaElement = document.getElementById("local-media");
-      disableLocalAudioTracks(template.localTracks);
+      disableAudioTracks(template.localTracks);
       template.localAudioEnabled.set(false);
     }
   },
@@ -137,7 +136,7 @@ Template.videoChat.events({
     event.preventDefault();
     if( template.localTracks){
       const localMediaElement = document.getElementById("local-media");
-      enableLocalAudioTracks(template.localTracks);
+      enableAudioTracks(template.localTracks);
       template.localAudioEnabled.set(true);
     }
   },
@@ -145,7 +144,7 @@ Template.videoChat.events({
     event.preventDefault();
     const localMediaElement = document.getElementById("local-media");
     if (template.localTracks) {
-      disableLocalVideoTracks(template.localTracks);
+      disableVideoTracks(template.localTracks);
       template.localVideoEnabled.set(false);
     }
   },
@@ -153,7 +152,7 @@ Template.videoChat.events({
     event.preventDefault();
     const localMediaElement = document.getElementById("local-media");
     if (template.localTracks) {
-      enableLocalVideoTracks(template.localTracks);
+      enableVideoTracks(template.localTracks);
       template.localVideoEnabled.set(true);
     }
   },
