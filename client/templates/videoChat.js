@@ -7,7 +7,7 @@ function attachTracksToDomElement(tracks, domElement) {
 }
 
 function attachParticipantTracks(participant, domElement) {
-  var tracks = Array.from(participant.tracks.values());
+  const tracks = Array.from(participant.tracks.values());
   attachTracksToDomElement(tracks, domElement);
 }
 
@@ -46,10 +46,21 @@ function enableVideoTracks(tracks) {
 function roomJoined(room, template){
   if (! template.localTracks) {
     const localMediaElement = document.getElementById("local-media");
-    attachParticipantTracks(room.localParticipant, localMediaElement);
+    attachTracksToDomElement(room.localParticipant.tracks, localMediaElement);
     template.localTracks = room.localParticipant.tracks;
     template.localMediaAttached.set(true);
   }
+
+  room.participants.forEach(function(participant) {
+    const remoteMediaElement = document.getElementById('remote-media');
+    attachParticipantTracks(participant, remoteMediaElement);
+  });
+
+  room.on('trackAdded', function(track, participant) {
+    const remoteMediaElement = document.getElementById('remote-media');
+    attachTracksToDomElement([track], remoteMediaElement);
+  });
+
 }
 
 function createLocalTracks(template) {
