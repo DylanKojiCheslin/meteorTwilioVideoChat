@@ -3,10 +3,10 @@
     <input type="text" name="text" placeholder="Enter a room name" />
   </form>
   {{#unless inPreviewMode}}
-    <button id="js-start-preview-local-media">preview</button>
+    <button id="js-start-preview-local-media">Preview</button>
   {{/unless}}
   {{#if inPreviewMode}}
-  EndPriview
+  <button id="js-end-preview-local-media">End Priview</button>
   {{/if}}
     {{#if localMediaAudioEnabled}}
       <button id="js-mute-local-media">mute</button>
