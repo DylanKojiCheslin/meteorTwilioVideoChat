@@ -49,7 +49,7 @@ function roomJoined(room, template){
     const localMediaElement = document.getElementById("local-media");
     attachParticipantTracks(room.localParticipant, localMediaElement);
     template.localTracks = room.localParticipant.tracks;
-    template.previewMediaAttached.set(true);
+    template.localMediaAttached.set(true);
   }
 }
 
@@ -71,9 +71,10 @@ function createLocalTracks(template) {
 }
 
 Template.videoChat.onCreated(function (){
-   this.previewMediaAttached = new ReactiveVar(null);
+   this.localMediaAttached = new ReactiveVar(null);
    this.localAudioEnabled = new ReactiveVar(null);
    this.localVideoEnabled = new ReactiveVar(null);
+   this.previewModeEnabled = new ReactiveVar(null);
    const self = this;
    Meteor.call(
      "requestVideoChatAccess", function(error, result){
@@ -88,14 +89,15 @@ Template.videoChat.onCreated(function (){
 });
 
 Template.videoChat.onRendered(function (){
-   this.previewMediaAttached.set(false);
+   this.localMediaAttached.set(false);
    this.localAudioEnabled.set(true);
    this.localVideoEnabled.set(true);
+   this.previewModeEnabled.set(false)
 });
 
 Template.videoChat.helpers({
-  previewMediaAttachedMode: function () {
-    return (Template.instance().previewMediaAttached.get())
+  localMediaAttachedMode: function () {
+    return (Template.instance().localMediaAttached.get())
   },
   localMediaAudioEnabled: function () {
     return (Template.instance().localAudioEnabled.get())
@@ -103,15 +105,19 @@ Template.videoChat.helpers({
   localMediaVideoEnabled: function () {
     return (Template.instance().localVideoEnabled.get())
   },
+  inPreviewMode: function(){
+    return (Template.instance().previewModeEnabled.get())
+  }
 });
 
 Template.videoChat.events({
-  "click #js-preview-camera": function(event, template){
+  "click #js-start-preview-local-media": function(event, template){
     event.preventDefault();
     if( ! template.localTracks){
       createLocalTracks(template).then(
         function(value){
-          template.previewMediaAttached.set(true);
+          template.localMediaAttached.set(true);
+          template.previewModeEnabled.set(true);
         },
         function(error){
           console.error(error);
@@ -154,7 +160,6 @@ Template.videoChat.events({
   "submit #js-join-video-chat-room": function(event, template){
     event.preventDefault();
     let theLocalTracks;
-    template.previewMediaAttached.set(true);
     const roomName = event.target.text.value;
     let connectOptions = {
       name: roomName,
