@@ -11,6 +11,19 @@ function attachParticipantTracks(participant, domElement) {
   attachTracksToDomElement(tracks, domElement);
 }
 
+function detachTracks(tracks) {
+  tracks.forEach(function(track) {
+    track.detach().forEach(function(detachedElement) {
+      detachedElement.remove();
+    });
+  });
+}
+
+function detachParticipantTracks(participant) {
+  var tracks = Array.from(participant.tracks.values());
+  detachTracks(tracks);
+}
+
 function disableAudioTracks(tracks) {
   tracks.forEach(function(track) {
     if (track.kind == "audio") {
@@ -49,6 +62,7 @@ function roomJoined(room, template){
     attachTracksToDomElement(room.localParticipant.tracks, localMediaElement);
     template.localTracks = room.localParticipant.tracks;
     template.localMediaAttached.set(true);
+    template.inChatRoom.set(true);
   }
 
   room.participants.forEach(function(participant) {
@@ -59,6 +73,24 @@ function roomJoined(room, template){
   room.on('trackAdded', function(track, participant) {
     const remoteMediaElement = document.getElementById('remote-media');
     attachTracksToDomElement([track], remoteMediaElement);
+  });
+
+  room.on('trackRemoved', function(track, participant) {
+    detachTracks([track]);
+  });
+
+  room.on('participantDisconnected', function(participant) {
+    detachParticipantTracks(participant);
+  });
+
+  room.on('disconnected', function() {
+    if (template.localTracks) {
+      template.localTracks.forEach(function(track) {
+        track.stop();
+      });
+    }
+    detachParticipantTracks(room.localParticipant);
+    room.participants.forEach(detachParticipantTracks);
   });
 
 }
@@ -85,6 +117,7 @@ Template.videoChat.onCreated(function (){
    this.localAudioEnabled = new ReactiveVar(null);
    this.localVideoEnabled = new ReactiveVar(null);
    this.previewModeEnabled = new ReactiveVar(null);
+   this.inChatRoom =  new ReactiveVar(null);
    const self = this;
    Meteor.call(
      "requestVideoChatAccess", function(error, result){
@@ -102,7 +135,8 @@ Template.videoChat.onRendered(function (){
    this.localMediaAttached.set(false);
    this.localAudioEnabled.set(true);
    this.localVideoEnabled.set(true);
-   this.previewModeEnabled.set(false)
+   this.previewModeEnabled.set(false);
+   this.inChatRoom.set(false);
 });
 
 Template.videoChat.helpers({
@@ -117,6 +151,16 @@ Template.videoChat.helpers({
   },
   inPreviewMode: function(){
     return (Template.instance().previewModeEnabled.get())
+  },
+  inChatRoomMode: function(){
+    return (Template.instance().inChatRoom.get())
+  }
+});
+
+Template.videoChat.onDestroyed(function (event, template) {
+  event.preventDefault();
+  if (template.room) {
+    template.room.disconnect();
   }
 });
 
@@ -133,6 +177,14 @@ Template.videoChat.events({
           console.error(error);
         }
       )
+    }
+  },
+  "click #js-end-preview-local-media": function(event, template){
+    event.preventDefault();
+    if (template.localTracks) {
+      detachTracks(template.localTracks);
+      template.localMediaAttached.set(false);
+      template.previewModeEnabled.set(false);
     }
   },
   "click #js-mute-local-media": function(event, template){
@@ -167,7 +219,7 @@ Template.videoChat.events({
       template.localVideoEnabled.set(true);
     }
   },
-  "submit #js-join-video-chat-room": function(event, template){
+  "submit #js-join-chat-room": function(event, template){
     event.preventDefault();
     let theLocalTracks;
     const roomName = event.target.text.value;
@@ -182,10 +234,20 @@ Template.videoChat.events({
     .then(
       function(room){
         roomJoined(room,template)
+        template.room = room;
       },
       function(error) {
         console.error('Could not connect to Twilio: ' + error.message);
       }
     );
+  },
+  "click #js-leave-chat-room": function(event, template){
+    event.preventDefault();
+    console.log(template);
+    if (template.room) {
+      template.room.disconnect();
+      template.localMediaAttached.set(false);
+      template.inChatRoom.set(false);
+    }
   }
 });
