@@ -62,8 +62,9 @@ function roomJoined(room, template){
     attachTracksToDomElement(room.localParticipant.tracks, localMediaElement);
     template.localTracks = room.localParticipant.tracks;
     template.localMediaAttached.set(true);
-    template.inChatRoom.set(true);
   }
+  template.inChatRoom.set(true);
+  template.preview.set(false);
 
   room.participants.forEach(function(participant) {
     const remoteMediaElement = document.getElementById('remote-media');
@@ -114,9 +115,9 @@ function createLocalTracks(template) {
 
 Template.videoChat.onCreated(function (){
    this.localMediaAttached = new ReactiveVar(null);
-   this.localAudioEnabled = new ReactiveVar(null);
-   this.localVideoEnabled = new ReactiveVar(null);
-   this.previewModeEnabled = new ReactiveVar(null);
+   this.localAudio = new ReactiveVar(null);
+   this.localVideo = new ReactiveVar(null);
+   this.preview = new ReactiveVar(null);
    this.inChatRoom =  new ReactiveVar(null);
    const self = this;
    Meteor.call(
@@ -128,31 +129,30 @@ Template.videoChat.onCreated(function (){
          self.accessData = result;
        }
      });
-
 });
 
 Template.videoChat.onRendered(function (){
    this.localMediaAttached.set(false);
-   this.localAudioEnabled.set(true);
-   this.localVideoEnabled.set(true);
-   this.previewModeEnabled.set(false);
+   this.localAudio.set(true);
+   this.localVideo.set(true);
+   this.preview.set(false);
    this.inChatRoom.set(false);
 });
 
 Template.videoChat.helpers({
-  localMediaAttachedMode: function () {
+  theLocalMediaIsAttached: function () {
     return (Template.instance().localMediaAttached.get())
   },
-  localMediaAudioEnabled: function () {
-    return (Template.instance().localAudioEnabled.get())
+  theLocalMediaAudioIsEnabled: function () {
+    return (Template.instance().localAudio.get())
   },
-  localMediaVideoEnabled: function () {
-    return (Template.instance().localVideoEnabled.get())
+  theLocalMediaVideoIsEnabled: function () {
+    return (Template.instance().localVideo.get())
   },
-  inPreviewMode: function(){
-    return (Template.instance().previewModeEnabled.get())
+  theUserIsInPreview: function(){
+    return (Template.instance().preview.get())
   },
-  inChatRoomMode: function(){
+  theUserIsInChatRoom: function(){
     return (Template.instance().inChatRoom.get())
   }
 });
@@ -171,7 +171,7 @@ Template.videoChat.events({
       createLocalTracks(template).then(
         function(value){
           template.localMediaAttached.set(true);
-          template.previewModeEnabled.set(true);
+          template.preview.set(true);
         },
         function(error){
           console.error(error);
@@ -184,7 +184,7 @@ Template.videoChat.events({
     if (template.localTracks) {
       detachTracks(template.localTracks);
       template.localMediaAttached.set(false);
-      template.previewModeEnabled.set(false);
+      template.preview.set(false);
     }
   },
   "click #js-mute-local-media": function(event, template){
@@ -192,7 +192,7 @@ Template.videoChat.events({
     if( template.localTracks){
       const localMediaElement = document.getElementById("local-media");
       disableAudioTracks(template.localTracks);
-      template.localAudioEnabled.set(false);
+      template.localAudio.set(false);
     }
   },
   "click #js-unmute-local-media": function(event, template){
@@ -200,7 +200,7 @@ Template.videoChat.events({
     if( template.localTracks){
       const localMediaElement = document.getElementById("local-media");
       enableAudioTracks(template.localTracks);
-      template.localAudioEnabled.set(true);
+      template.localAudio.set(true);
     }
   },
   "click #js-disable-video-local-media": function(event, template){
@@ -208,7 +208,7 @@ Template.videoChat.events({
     const localMediaElement = document.getElementById("local-media");
     if (template.localTracks) {
       disableVideoTracks(template.localTracks);
-      template.localVideoEnabled.set(false);
+      template.localVideo.set(false);
     }
   },
   "click #js-enable-video-local-media": function(event, template){
@@ -216,7 +216,7 @@ Template.videoChat.events({
     const localMediaElement = document.getElementById("local-media");
     if (template.localTracks) {
       enableVideoTracks(template.localTracks);
-      template.localVideoEnabled.set(true);
+      template.localVideo.set(true);
     }
   },
   "submit #js-join-chat-room": function(event, template){
@@ -233,7 +233,7 @@ Template.videoChat.events({
     Video.connect(template.accessData.token, connectOptions)
     .then(
       function(room){
-        roomJoined(room,template)
+        roomJoined(room,template);
         template.room = room;
       },
       function(error) {
@@ -243,9 +243,9 @@ Template.videoChat.events({
   },
   "click #js-leave-chat-room": function(event, template){
     event.preventDefault();
-    console.log(template);
     if (template.room) {
       template.room.disconnect();
+      template.localTracks = undefined;
       template.localMediaAttached.set(false);
       template.inChatRoom.set(false);
     }

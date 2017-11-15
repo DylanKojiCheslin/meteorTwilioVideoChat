@@ -1,9 +1,9 @@
 <template name="videoChat">
-  {{#unless inChatRoomMode}}
-    {{#unless inPreviewMode}}
+  {{#unless theUserIsInChatRoom}}
+    {{#unless theUserIsInPreview}}
       <button id="js-start-preview-local-media">Preview</button>
     {{/unless}}
-    {{#if inPreviewMode}}
+    {{#if theUserIsInPreview}}
     <button id="js-end-preview-local-media">End Priview</button>
     {{/if}}
     <form id="js-join-chat-room">
@@ -11,21 +11,21 @@
     </form>
   {{/unless}}
 
-  {{#if inChatRoomMode}}
+  {{#if theUserIsInChatRoom}}
     <button id="js-leave-chat-room">Leave Chat</button>
   {{/if}}
 
-  {{#if localMediaAttachedMode}}
-    {{#if localMediaAudioEnabled}}
+  {{#if theLocalMediaIsAttached}}
+    {{#if theLocalMediaAudioIsEnabled}}
       <button id="js-mute-local-media">mute</button>
     {{/if}}
-    {{#unless localMediaAudioEnabled}}
+    {{#unless theLocalMediaAudioIsEnabled}}
       <button id="js-unmute-local-media">unmute</button>
     {{/unless}}
-    {{#if localMediaVideoEnabled}}
+    {{#if theLocalMediaVideoIsEnabled}}
       <button id="js-disable-video-local-media">disable camera</button>
     {{/if}}
-    {{#unless localMediaVideoEnabled}}
+    {{#unless theLocalMediaVideoIsEnabled}}
       <button id="js-enable-video-local-media">enable camera</button>
     {{/unless}}
   {{/if}}
